@@ -43,9 +43,19 @@ function dependancy_install()
   go get
   go install
 
+  if [ ! -d logs ]; then
+    mkdir logs
+  fi
+  if [ ! -d data ]; then
+    mkdir data
+  fi
+  if [ ! -f data/expiry.gob ]; then
+    touch data/expiry.gob
+  fi
+  if [ ! -f data/session.key ]; then
+    touch data/session.key
+  fi
 
-  mkdir logs data
-  touch data/session.key
 }
 
 ### (UN)COMMENT FOR INSTALL BASE:
@@ -56,6 +66,7 @@ dependancy_install
 
 go build
 
+echo "# GHOSTBIN LAUNCHED"
 ./ghostbin -addr="0.0.0.0:8619" -log_dir="logs" -root="data"
 
 echo "===END==="
