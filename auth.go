@@ -64,7 +64,6 @@ func authLoginPostHandler(w http.ResponseWriter, r *http.Request) {
 	if loginType == "username" {
 		// We don't have an assertion, hope we have a username/password
 		reply.Type = "username"
-
 		username, password, confirm := r.FormValue("username"), r.FormValue("password"), r.FormValue("confirm_password")
 
 		promoteToken := r.FormValue("promote_token")
@@ -93,12 +92,10 @@ func authLoginPostHandler(w http.ResponseWriter, r *http.Request) {
 		if newuser == nil {
 			if promotion {
 				// Don't allow new user creation; this should never happen.
+				reply.Reason = "account creation has been disabled"
+				reply.InvalidFields = []string{"username", "password", "confirm_password"}
 				return
 			}
-
-			reply.Reason = "account creation has been disabled"
-			reply.InvalidFields = []string{"username", "password", "confirm_password"}
-			return
 
 			if confirm == "" {
 				reply.Status = "moreinfo"
