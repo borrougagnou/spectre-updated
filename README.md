@@ -7,5 +7,10 @@ This is a "Updated version" of Ghostbin/Spectre
  - go  module updated to latest version (go.mod)
  - npm module updated to latest version (package.json)
 
-Audit Security also fixed
+Audit Security also checked:
+
+![npm vulnerability.png](./img/npm-vulnerability.png)
+
+[Nancy tool to check vulnerabilities in Golang dependencies](https://github.com/sonatype-nexus-community/nancy)
+![go vulnerability.png](./img/go-vulnerability.png)
 
