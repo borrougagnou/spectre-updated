@@ -14,16 +14,18 @@ function base_install()
   sudo python3 -m pip install -g Pygments
 
   # INSTALLATION NVM --> NODEJS/NPM
-  wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+  wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
   export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-  nvm install v16.14.0
+  nvm install lts/iron #node v20.10.0 | npm v10.2.3
+  nvm use lts/iron
+  nvm alias default lts/iron
 
   # INSTALLATION GO
-  wget https://go.dev/dl/go1.17.6.linux-amd64.tar.gz
+  wget https://go.dev/dl/go1.21.4.linux-amd64.tar.gz
   export PATH=$PATH:/usr/local/go/bin
-  sudo tar -C /usr/local -xzf go1.17.6.linux-amd64.tar.gz
+  sudo tar -C /usr/local -xzf go1.21.4.linux-amd64.tar.gz
 
   
   echo "#####"
@@ -59,7 +61,7 @@ function dependancy_install()
 }
 
 ### (UN)COMMENT FOR INSTALL BASE:
-#base_install
+base_install
 
 ### (UN)COMMENT FOR INSTALL DEPENDANCY:
 dependancy_install
