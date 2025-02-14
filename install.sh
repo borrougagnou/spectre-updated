@@ -5,27 +5,29 @@ echo "### DEBUG ONLY, PREFER CONTAINER SOLUTION ###"
 
 function base_install()
 {
-  sudo apt install wget curl git unzip rsync
+  sudo apt install -y wget curl git unzip rsync
 
   # INSTALLATION PYGMENTS:
-  sudo apt install python3 python3-distutils
-  wget https://bootstrap.pypa.io/get-pip.py
-  sudo python3 get-pip.py
-  sudo python3 -m pip install -g Pygments
+  #wget https://bootstrap.pypa.io/get-pip.py #error: externally-managed-environment
+  #sudo python3 get-pip.py #error: externally-managed-environment
+  sudo apt install -y python3-pip
+  #sudo apt install python3 python3-distutils #distutils has been deprecated in Python 3.12
+  sudo python3 -m pip install setuptools --break-system-packages
+  sudo python3 -m pip install Pygments --break-system-packages
 
   # INSTALLATION NVM --> NODEJS/NPM
-  wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
+  wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
   export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-  nvm install lts/iron #node v20.10.0 | npm v10.2.3
-  nvm use lts/iron
-  nvm alias default lts/iron
+  nvm install lts/Jod #node v22.14.0 | npm v10.9.2
+  nvm use lts/jod
+  nvm alias default lts/jod
 
   # INSTALLATION GO
-  wget https://go.dev/dl/go1.21.4.linux-amd64.tar.gz
+  wget https://go.dev/dl/go1.24.0.linux-amd64.tar.gz
   export PATH=$PATH:/usr/local/go/bin
-  sudo tar -C /usr/local -xzf go1.21.4.linux-amd64.tar.gz
+  sudo tar -C /usr/local -xzf go1.24.0.linux-amd64.tar.gz
 
   
   echo "#####"

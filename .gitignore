@@ -25,3 +25,6 @@ accounts/*
 node_modules
 build
 .tmpl
+
+logs/*
+get-pip.py
