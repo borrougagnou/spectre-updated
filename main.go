@@ -827,6 +827,9 @@ func init() {
 func main() {
 	ReloadAll()
 
+	glog.Info("Starting server...")
+
+	// Start monitoring the Expirator error channel
 	go func() {
 		for {
 			select {
@@ -1005,10 +1008,15 @@ func main() {
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("public")))
 	http.Handle("/", &fourOhFourConsumerHandler{userLookupWrapper{router}})
 
+	// Start the HTTP server
 	var addr string = arguments.addr
+	glog.Infof("Server listening on %s", addr)
 	server := &http.Server{
 		Addr: addr,
 	}
-	server.ListenAndServe()
+	err := server.ListenAndServe()
+	if err != nil {
+		glog.Fatal("Server error: ", err)
+	}
 }
 
