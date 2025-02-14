@@ -34,6 +34,11 @@ const PASTE_CACHE_MAX_ENTRIES int = 1000
 const PASTE_MAXIMUM_LENGTH ByteSize = 524288 // 512KiB
 const MAX_EXPIRE_DURATION time.Duration = 2 * 24 * time.Hour
 
+type ExpiratorState map[gotimeout.ExpirableID]struct {
+	ExpirationTime time.Time
+	ID             gotimeout.ExpirableID
+}
+
 type PasteAccessDeniedError struct {
 	action string
 	ID     PasteID
@@ -525,6 +530,58 @@ func requestVariable(rc *RenderContext, variable string) string {
 	return v
 }
 
+// ----- Helper functions for expiry.gob initialization -----
+
+// Hope there is no "main.go] Expirator Error: EOF" anymore now
+
+// ensureExpiryFileInitialized checks if the expiry file exists and is valid.
+// If the file does not exist, is empty, or cannot be decoded, it reinitializes it.
+func ensureExpiryFileInitialized(filePath string) error {
+	info, err := os.Stat(filePath)
+	if os.IsNotExist(err) || (err == nil && info.Size() == 0) {
+		glog.Infof("Expiry file %s missing or empty. Initializing.", filePath)
+		return initializeExpiryFile(filePath)
+	} else if err != nil {
+		return err
+	}
+
+	f, err := os.Open(filePath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	// Here we assume that the state is stored as a map[string]time.Time.
+	var state ExpiratorState
+	decoder := gob.NewDecoder(f)
+	if err := decoder.Decode(&state); err != nil {
+		glog.Infof("Failed to decode expiry file %s: %v. Reinitializing.", filePath, err)
+		return initializeExpiryFile(filePath)
+	}
+
+	return nil
+}
+
+// initializeExpiryFile creates a new expiry file with an empty state.
+func initializeExpiryFile(filePath string) error {
+	f, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	// Create an empty state using the proper type.
+	state := make(ExpiratorState)
+	encoder := gob.NewEncoder(f)
+	if err := encoder.Encode(state); err != nil {
+		return err
+	}
+	glog.Infof("Expiry file %s initialized successfully.", filePath)
+	return nil
+}
+
+// ----- End of new helper functions -----
+
 type RedirectHandler string
 
 func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -748,7 +805,11 @@ func init() {
 	pasteStore = NewFilesystemPasteStore(pastedir)
 	pasteStore.PasteDestroyCallback = PasteCallback(pasteDestroyCallback)
 
-	pasteExpirator = gotimeout.NewExpirator(filepath.Join(arguments.root, "expiry.gob"), &ExpiringPasteStore{pasteStore})
+	expiryFilePath := filepath.Join(arguments.root, "expiry.gob")
+	if err := ensureExpiryFileInitialized(expiryFilePath); err != nil {
+		glog.Fatalf("Error initializing expiry file: %v", err)
+	}
+	pasteExpirator = gotimeout.NewExpirator(expiryFilePath, &ExpiringPasteStore{pasteStore})
 	ephStore = gotimeout.NewMap()
 
 	accountPath := filepath.Join(arguments.root, "accounts")
@@ -770,7 +831,11 @@ func main() {
 		for {
 			select {
 			case err := <-pasteExpirator.ErrorChannel:
-				glog.Error("Expirator Error: ", err.Error())
+				if err == io.EOF {
+					glog.Error("Expirator encountered EOF. Possible corruption in expiry.gob.")
+				} else {
+					glog.Error("Expirator Error: ", err)
+				}
 			}
 		}
 	}()
@@ -946,3 +1011,4 @@ func main() {
 	}
 	server.ListenAndServe()
 }
+
