@@ -764,28 +764,40 @@ func init() {
 	sesdir := filepath.Join(arguments.root, "sessions")
 	os.Mkdir(sesdir, 0700)
 
+	// Load sessionKey (hash key)
 	sessionKeyFile := filepath.Join(arguments.root, "session.key")
 	sessionKey, err := SlurpFile(sessionKeyFile)
-	if err != nil {
+	if err != nil || len(sessionKey) < 32 {
+		glog.Warning("Generating new session.key file")
 		sessionKey = securecookie.GenerateRandomKey(32)
 		err = ioutil.WriteFile(sessionKeyFile, sessionKey, 0600)
 		if err != nil {
-			glog.Fatal("session.key not found, and an attempt to create one failed: ", err)
+			glog.Fatal("Failed to write and create session.key file: ", err)
 		}
 	}
+
+	// Load client encryption key
+	clientKeyFile := filepath.Join(arguments.root, "client_session_enc.key")
+	clientOnlySessionEncryptionKey, err := SlurpFile(clientKeyFile)
+	if err != nil || len(sessionKey) < 32 {
+		glog.Warning("Generating new client_session_enc.key file")
+		clientOnlySessionEncryptionKey = securecookie.GenerateRandomKey(32)
+		err = ioutil.WriteFile(clientKeyFile, clientOnlySessionEncryptionKey, 0600)
+		if err != nil {
+			glog.Fatal("Failed to write and create client_session_enc.key file: ", err)
+		}
+	}
+
+	// Verify keys before initializing stores
+	if len(sessionKey) == 0 || len(clientOnlySessionEncryptionKey) == 0 {
+		glog.Fatal("Session keys not loaded! Check session.key and client_session_enc.key files.")
+	}
+
+	// Initialize stores after key validation
 	sessionStore = sessions.NewFilesystemStore(sesdir, sessionKey)
 	sessionStore.Options.Path = "/"
 	sessionStore.Options.MaxAge = 86400 * 365
 
-	clientKeyFile := filepath.Join(arguments.root, "client_session_enc.key")
-	clientOnlySessionEncryptionKey, err := SlurpFile(clientKeyFile)
-	if err != nil {
-		clientOnlySessionEncryptionKey = securecookie.GenerateRandomKey(32)
-		err = ioutil.WriteFile(clientKeyFile, clientOnlySessionEncryptionKey, 0600)
-		if err != nil {
-			glog.Fatal("client_session_enc.key not found, and an attempt to create one failed: ", err)
-		}
-	}
 	clientOnlySessionStore = sessions.NewCookieStore(sessionKey, clientOnlySessionEncryptionKey)
 	if Env() != EnvironmentDevelopment {
 		clientOnlySessionStore.Options.Secure = true
@@ -799,6 +811,7 @@ func init() {
 	}
 	clientLongtermSessionStore.Options.Path = "/"
 	clientLongtermSessionStore.Options.MaxAge = 86400 * 365
+
 
 	pastedir := filepath.Join(arguments.root, "pastes")
 	os.Mkdir(pastedir, 0700)
