@@ -25,7 +25,7 @@ if [[ -z $1 ]]; then
 	exit 1
 fi
 
-rcdir="${HOME}/.ghostbin"
+rcdir="${HOME}/.spectre-updated"
 if [[ ! -d "${rcdir}" ]]; then
 	mkdir "${rcdir}"
 fi

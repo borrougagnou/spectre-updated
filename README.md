@@ -1,6 +1,6 @@
 # Spectre/Ghostbin
 
-This is a "Updated version" of Ghostbin/Spectre
+This is a "Updated version" of Spectre (formerly known as Ghostbin)
  - Login/Password system work again
  - Golang 1.21.4
  - Node 20.10.0 LTS (npm 10.2.3)

@@ -2,16 +2,16 @@ all: sync .deploy reload_config
 .PHONY: sync reload_config
 
 sync: $(wildcard *.yml)
-	rsync -avvHAX *.yml ./templates ./public uv:ghostbin/ --delete
+	rsync -avvHAX *.yml ./templates ./public uv:spectre-updated/ --delete
 
 .deploy: paste.linux
-	gnutar cj $^ | pv -prac -N upload | ssh uv "cd ghostbin; tar xj && mv paste.linux ghostbin && restart ghostbin"
+	gnutar cj $^ | pv -prac -N upload | ssh uv "cd spectre-updated; tar xj && mv paste.linux spectre-updated && restart spectre-updated"
 	touch .deploy
 paste.linux: $(wildcard *.go)
 	GOOS=linux GOARCH=amd64 go build -ldflags -w -o paste.linux
 
 reload_config:
-	ssh uv "killall -HUP ghostbin"
+	ssh uv "killall -HUP spectre-updated"
 
 .PHONY: edit-font get-font
 FONTELLO_HOST ?= http://fontello.com

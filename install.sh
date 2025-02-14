@@ -70,7 +70,7 @@ dependancy_install
 
 go build
 
-echo "# GHOSTBIN LAUNCHED"
-./ghostbin -addr="0.0.0.0:8619" -log_dir="logs" -root="data"
+echo "# SPECTRE LAUNCHED"
+./spectre-updated -addr="0.0.0.0:8619" -log_dir="logs" -root="data" --logtostderr=1
 
 echo "===END==="

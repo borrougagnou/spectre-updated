@@ -5,10 +5,8 @@
 .dev
 .fontello
 bootstrap-2.3.2
-ghostbin
 paste
 paste.linux
-pastes/*
 public/css/*.less.css
 public/css/*.gen.css
 public/css/*.min.css
@@ -22,9 +20,17 @@ templates/_local.tmpl
 xattr
 accounts/*
 
+get-pip.py
 node_modules
 build
 .tmpl
 
+# APPNAME
+ghostbin
+spectre
+spectre-updated
+
+# FROM THE APP
 logs/*
-get-pip.py
+data/*
+pastes/*

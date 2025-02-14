@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/DHowett/ghostbin/account"
+	"github.com/borrougagnou/spectre-updated/account"
 	"github.com/gorilla/sessions"
 	"net/http"
 )
