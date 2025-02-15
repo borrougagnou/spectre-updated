@@ -2,13 +2,23 @@
 
 This is a "Updated version" of Spectre (formerly known as Ghostbin)
  - Login/Password system work again
- - Golang 1.21.4
- - Node 20.10.0 LTS (npm 10.2.3)
+ - Golang 1.24.0
+ - Node 22.14.0 LTS (npm 10.9.2)
  - go  module updated to latest version (go.mod)
  - npm module updated to latest version (package.json)
 
 
 ## changelog (YYYYMMDD)
+#### 20250215
+ - change name "ghostbin" by "specte"/"spectre-updated" on multiple location.
+ - Updated golang 1.21.4 --> 1.24.0
+ - Updated nodeJS 20.10.0 --> 22.14.0
+ - Updated npm 10.2.3 --> 10.9.2
+ - go  module updated to latest version (go.mod)
+ - npm module updated to latest version (package.json)
+ - Fixed SessionKey problem and increase verbosity
+ - Increase verbosity when the port is listening
+
 #### 20231129
  - change name of default branch `v1-stable` --> `stable`
  - add tag `2.0` for the 20231129 update
@@ -27,11 +37,11 @@ This is a "Updated version" of Spectre (formerly known as Ghostbin)
  - npm module updated to latest version (package.json)
 
 
-## Audit Security (20231129)
-![npm vulnerability.png](./img/npm-vulnerability-20231129.png)
+## Audit Security (20250215)
+![npm vulnerability.png](./img/npm-vulnerability-20250215.png)
 
 [Nancy tool to check vulnerabilities in Golang dependencies](https://github.com/sonatype-nexus-community/nancy)
-![go vulnerability.png](./img/go-vulnerability-20231129.png)
+![go vulnerability.png](./img/go-vulnerability-20250215.png)
 
 
 
