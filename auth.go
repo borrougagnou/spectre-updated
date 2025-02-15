@@ -37,11 +37,17 @@ type authReply struct {
 func authLoginPostHandler(w http.ResponseWriter, r *http.Request) {
 	clientSession, err := clientLongtermSessionStore.Get(r, "authentication")
 	if err != nil {
-		glog.Errorln(err)
+		glog.Warningf("Failed to get authentication session: %v (Possible key mismatch or corrupt cookie)", err)
+		clientSession.Options.MaxAge = -1 // Delete cookie
+		sessions.Save(r, w)
+		glog.Warning("Invalid authentication session cleanup: Done !")
 	}
 	serverSession, err := sessionStore.Get(r, "session")
 	if err != nil {
-		glog.Errorln(err)
+		glog.Warningf("Failed to get server session: %v (Possible key mismatch or corrupt cookie)", err)
+		serverSession.Options.MaxAge = -1 // Delete cookie
+		sessions.Save(r, w)
+		glog.Warning("Invalid server session cleanup: Done !")
 	}
 
 	reply := &authReply{

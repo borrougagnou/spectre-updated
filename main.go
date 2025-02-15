@@ -779,7 +779,7 @@ func init() {
 	// Load client encryption key
 	clientKeyFile := filepath.Join(arguments.root, "client_session_enc.key")
 	clientOnlySessionEncryptionKey, err := SlurpFile(clientKeyFile)
-	if err != nil || len(sessionKey) < 32 {
+	if err != nil || len(clientOnlySessionEncryptionKey) < 32 {
 		glog.Warning("Generating new client_session_enc.key file")
 		clientOnlySessionEncryptionKey = securecookie.GenerateRandomKey(32)
 		err = ioutil.WriteFile(clientKeyFile, clientOnlySessionEncryptionKey, 0600)
@@ -795,22 +795,29 @@ func init() {
 
 	// Initialize stores after key validation
 	sessionStore = sessions.NewFilesystemStore(sesdir, sessionKey)
-	sessionStore.Options.Path = "/"
-	sessionStore.Options.MaxAge = 86400 * 365
-
 	clientOnlySessionStore = sessions.NewCookieStore(sessionKey, clientOnlySessionEncryptionKey)
-	if Env() != EnvironmentDevelopment {
-		clientOnlySessionStore.Options.Secure = true
-	}
-	clientOnlySessionStore.Options.Path = "/"
-	clientOnlySessionStore.Options.MaxAge = 0
-
 	clientLongtermSessionStore = sessions.NewCookieStore(sessionKey, clientOnlySessionEncryptionKey)
-	if Env() != EnvironmentDevelopment {
-		clientLongtermSessionStore.Options.Secure = true
+	
+	// Configure stores options
+	sessionStore.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   86400 * 365,
+		Secure:   Env() != EnvironmentDevelopment, // Must match other stores
 	}
-	clientLongtermSessionStore.Options.Path = "/"
-	clientLongtermSessionStore.Options.MaxAge = 86400 * 365
+
+	clientOnlySessionStore.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   0,
+		HttpOnly: true,
+		Secure:   Env() != EnvironmentDevelopment, // Must match other stores
+	}
+
+	clientLongtermSessionStore.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   86400 * 365,
+		HttpOnly: true,
+		Secure:   Env() != EnvironmentDevelopment, // Must match other stores
+	}
 
 
 	pastedir := filepath.Join(arguments.root, "pastes")
@@ -841,6 +848,7 @@ func main() {
 	ReloadAll()
 
 	glog.Info("Starting server...")
+	glog.Infof("Running in environment: %v", Env())
 
 	// Start monitoring the Expirator error channel
 	go func() {

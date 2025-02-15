@@ -6,9 +6,17 @@ This is a "Updated version" of Spectre (formerly known as Ghostbin)
  - Node 22.14.0 LTS (npm 10.9.2)
  - go  module updated to latest version (go.mod)
  - npm module updated to latest version (package.json)
+ - Fixed some bug when launching the program
 
 
 ## changelog (YYYYMMDD)
+#### 20250221
+ - Fixed the securecookie: the value is not valid
+ - Improve the error message when failed to found the session
+ - Create session before adding the option
+ - Prevent the clientOnlySessionEncryptionKey to be null
+ - Add the Environment variable when we launch the program (dev,prod)
+
 #### 20250215
  - change name "ghostbin" by "specte"/"spectre-updated" on multiple location.
  - Updated golang 1.21.4 --> 1.24.0
